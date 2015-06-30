@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'imgur-albumkeeper/version'
+require 'imgur2comicbook/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "imgur-albumkeeper"
-  spec.version       = Gsfe::VERSION
+  spec.name          = "imgur2comicbook"
+  spec.version       = Imgur2ComicBook::VERSION
   spec.authors       = ["Glenn Y. Rolland"]
   spec.email         = ["glenn.rolland@netcat.io"]
   spec.summary       = %q{Archive imgur albums.}

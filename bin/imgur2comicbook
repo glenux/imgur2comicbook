@@ -13,6 +13,7 @@
 #   All files will be downloaded into battlefield3 with filenames in the pattern of
 #   scenery-[number].jpg
 
+require 'imgur2comicbook'
 
 require 'nokogiri'
 require 'open-uri'
@@ -69,6 +70,10 @@ options = parse_cmdline ARGV
 
 images = []
 now = Time.now
+if ARGV[0].nil? then
+	STDERR.puts "Missing URL."
+	exit 1
+end
 url = album_url(ARGV[0])
 directory = ( defined?(ARGV[1]) ? ARGV[1] : nil )
 #namespace = ( defined?(ARGV[2]) ? ARGV[2] : "image" )

@@ -1,7 +1,5 @@
-require "../imgur/albumkeeper/version"
+require "imgur2comicbook/version"
 
-module ../imgur
-  module Albumkeeper
+  module Imgur2ComicBook
     # Your code goes here...
   end
-end
