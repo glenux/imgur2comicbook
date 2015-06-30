@@ -1,0 +1,130 @@
+#!/usr/bin/env ruby
+
+# Download imgur.com galleries easily
+#
+# Requirements:
+#   gem install nokogiri
+#
+# Usage:
+#   ruby imgur.rb [url of gallery] [directory to download into] [namespace for files]
+#
+# Example:
+#   ruby imgur.rb http://imgur.com/a/npV94 battlefield3 scenery
+#   All files will be downloaded into battlefield3 with filenames in the pattern of
+#   scenery-[number].jpg
+
+
+require 'nokogiri'
+require 'open-uri'
+require 'date'
+require 'fileutils'
+require 'optparse'
+require 'pp'
+require "shellwords"
+
+
+def album_url origin_url
+	url = URI.parse origin_url
+	
+	url.hostname = case url.hostname
+				   when /(.*\.)?imgur.com/ then "imgur.com"
+				   else raise "ERROR: unknown url hostname !"
+				   end
+
+	url.path = case url.path
+			   when /^\/a\/(\S+).*?/ then
+				   '/a/' + $1 + '/layout/blog'
+			   else raise "ERROR: unknown url path !"
+			   end
+
+	puts "Fixed url #{url}"
+	return url
+end
+
+def parse_cmdline args
+	options = {}
+	OptionParser.new do |opts|
+  		opts.banner = "Usage: #{File.basename $0} [options]"
+
+  		opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+    		options[:verbose] = v
+  		end
+
+  		opts.on("-z", "--[no-]zip", "Compress album to cbz (zip)") do |v|
+    		options[:zip] = v
+  		end
+
+  		opts.on("-f", "--[no-]force", "Force overwrite in case file(s) exists") do |v|
+    		options[:force] = v
+  		end
+	end.parse! args
+	return options
+end
+
+options = parse_cmdline ARGV
+
+#pp options
+#pp ARGV
+#exit 0
+
+images = []
+now = Time.now
+url = album_url(ARGV[0])
+directory = ( defined?(ARGV[1]) ? ARGV[1] : nil )
+#namespace = ( defined?(ARGV[2]) ? ARGV[2] : "image" )
+namespace = "image"
+
+# filter url
+
+page = Nokogiri::HTML(open url)
+if directory.nil? then
+	directory = page.title.strip.gsub(/\//,'-')
+	directory = "#{directory} (#{url.path.split('/')[2]})"
+end
+directory = "#{now.year}#{sprintf("%02d", now.month)}/#{directory}"
+
+page.search('.thumb-title').each do |image|
+		uri = URI.parse(image.attributes['data-src'].value.gsub(/s.jpg/, '.jpg'))
+	uri.scheme ||= "http"
+  	images << uri.to_s
+end
+
+destination_exist = false
+if options[:zip] and File.exist?(directory + ".cbz")
+	destination_exist = true
+elsif ( 
+	   not options[:zip] and
+	   FileTest.directory? directory and
+	   FileTest.file? "#{directory}/.imguralbum" 
+	  ) then
+	  destination_exist = true
+end
+
+if destination_exist and not options[:force] then
+	STDERR.puts "Destination already exists (use --force to overwrite)"
+	exit 1
+end
+	
+unless FileTest.directory? directory then
+  	puts "Creating #{directory}"
+  	FileUtils.mkdir_p directory
+end
+
+puts "Downloading images into #{directory}...\n\n"
+
+images.each_with_index do |image, i|
+	indexstr = sprintf("%04d", i)
+  	puts "Downloading #{image} as #{namespace}-#{indexstr}.jpg..."
+  	file = open(image)
+  	File.open("#{directory}/#{namespace}-#{indexstr}.jpg", 'w') do |f| 
+    	f.write file.read
+  	end
+end
+FileUtils.touch "#{directory}/.imguralbum"
+
+if options[:zip] then
+	%x{zip -r #{directory.shellescape}.cbz #{directory.shellescape}}
+	FileUtils.rm_rf directory
+end
+
+puts "\nDone."
