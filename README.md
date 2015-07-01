@@ -1,22 +1,21 @@
 # ../imgur::Albumkeeper
 
+Download imgur.com galleries easily
+#
+# Usage:
+#   ruby imgur.rb [url of gallery] [directory to download into] [namespace for files]
+#
+# Example:
+#   ruby imgur.rb http://imgur.com/a/npV94 battlefield3 scenery
+#   All files will be downloaded into battlefield3 with filenames in the pattern of
+#   scenery-[number].jpg
 TODO: Write a gem description
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Install it yourself as:
 
-```ruby
-gem '../imgur-albumkeeper'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install ../imgur-albumkeeper
+    $ gem install imgur2comicbook
 
 ## Usage
 
