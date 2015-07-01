@@ -1,20 +1,5 @@
 #!/usr/bin/env ruby
 
-# Download imgur.com galleries easily
-#
-# Requirements:
-#   gem install nokogiri
-#
-# Usage:
-#   ruby imgur.rb [url of gallery] [directory to download into] [namespace for files]
-#
-# Example:
-#   ruby imgur.rb http://imgur.com/a/npV94 battlefield3 scenery
-#   All files will be downloaded into battlefield3 with filenames in the pattern of
-#   scenery-[number].jpg
-
-require 'imgur2comicbook'
-
 require 'nokogiri'
 require 'open-uri'
 require 'date'
@@ -23,6 +8,7 @@ require 'optparse'
 require 'pp'
 require "shellwords"
 
+require 'imgur2comicbook'
 
 def album_url origin_url
 	url = URI.parse origin_url
@@ -64,10 +50,6 @@ end
 
 options = parse_cmdline ARGV
 
-#pp options
-#pp ARGV
-#exit 0
-
 images = []
 now = Time.now
 if ARGV[0].nil? then
@@ -76,7 +58,6 @@ if ARGV[0].nil? then
 end
 url = album_url(ARGV[0])
 directory = ( defined?(ARGV[1]) ? ARGV[1] : nil )
-#namespace = ( defined?(ARGV[2]) ? ARGV[2] : "image" )
 namespace = "image"
 
 # filter url
@@ -128,7 +109,7 @@ end
 FileUtils.touch "#{directory}/.imguralbum"
 
 if options[:zip] then
-	%x{zip -r #{directory.shellescape}.cbz #{directory.shellescape}}
+	system "zip -r #{directory.shellescape}.cbz #{directory.shellescape}"
 	FileUtils.rm_rf directory
 end
 
