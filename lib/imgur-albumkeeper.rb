@@ -1,7 +1,5 @@
-require "../imgur/albumkeeper/version"
+require_relative "imgur-albumkeeper/version"
 
-module ../imgur
-  module Albumkeeper
-    # Your code goes here...
-  end
+module Albumkeeper
+  # Your code goes here...
 end
